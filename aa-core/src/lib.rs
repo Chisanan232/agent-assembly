@@ -9,6 +9,9 @@
 //! - `std` (default): enables `std`-dependent convenience impls (e.g. `From<SystemTime>`)
 //! - `alloc`: enables heap types (`String`, `Vec`, `BTreeMap`) in `no_std` environments
 //! - `serde`: enables `Serialize`/`Deserialize` derives on all core types (added in AAASM-22–25)
+//! - `test-utils`: exposes `PermitAllEvaluator` and `DenyAllEvaluator` for downstream test code
+//! - `std` (also default): enables `CredentialScanner` and all std-dependent types
+//! - `alloc` (also default via std): enables `AuditEntry`, `AuditEventType`, and all audit types
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -19,10 +22,29 @@ cfg_if::cfg_if! {
 }
 
 pub mod agent;
+#[cfg(feature = "alloc")]
+pub mod audit;
+pub mod evaluators;
 pub mod identity;
+pub mod policy;
+#[cfg(feature = "std")]
+pub mod scanner;
 pub mod time;
 
 pub use identity::{AgentId, SessionId};
+pub use policy::{FileMode, PolicyDecision, PolicyError};
 
 #[cfg(feature = "alloc")]
 pub use agent::AgentContext;
+
+#[cfg(feature = "alloc")]
+pub use policy::{ArgsJson, GovernanceAction, PolicyDocument, PolicyEvaluator, PolicyResult, PolicyRule};
+
+#[cfg(all(feature = "alloc", feature = "test-utils"))]
+pub use evaluators::{DenyAllEvaluator, PermitAllEvaluator};
+
+#[cfg(feature = "alloc")]
+pub use audit::{AuditEntry, AuditEventType};
+
+#[cfg(feature = "std")]
+pub use scanner::{CredentialFinding, CredentialKind, CredentialScanner, ScanResult};
