@@ -9,6 +9,7 @@
 //! - `std` (default): enables `std`-dependent convenience impls (e.g. `From<SystemTime>`)
 //! - `alloc`: enables heap types (`String`, `Vec`, `BTreeMap`) in `no_std` environments
 //! - `serde`: enables `Serialize`/`Deserialize` derives on all core types (added in AAASM-22–25)
+//! - `alloc` (also default via std): enables `AuditEntry`, `AuditEventType`, and all audit types
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -19,6 +20,8 @@ cfg_if::cfg_if! {
 }
 
 pub mod agent;
+#[cfg(feature = "alloc")]
+pub mod audit;
 pub mod identity;
 pub mod time;
 
@@ -26,3 +29,6 @@ pub use identity::{AgentId, SessionId};
 
 #[cfg(feature = "alloc")]
 pub use agent::AgentContext;
+
+#[cfg(feature = "alloc")]
+pub use audit::{AuditEntry, AuditEventType};
